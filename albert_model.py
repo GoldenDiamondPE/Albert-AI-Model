@@ -4,6 +4,8 @@ import torch
 from sentence_transformers import SentenceTransformer
 import threading
 
+# TEST
+
 _MODEL_PATH = os.path.join("models", "albert-bi-encoder")
 
 _model = None
