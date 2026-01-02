@@ -42,7 +42,7 @@ def rank_results(query: str, results: list, batch_size: int = 32):
         return results
 
     # Encode (normalized so cosine == dot product)
-    q_vec = model.encode([query], normalize_embeddings=True)[0]
+    q_vec = model.encode(query, normalize_embeddings=True)
     d_vecs = model.encode(docs, normalize_embeddings=True, batch_size=batch_size)
 
     scores = np.dot(d_vecs, q_vec)  # shape [num_docs]
