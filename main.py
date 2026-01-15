@@ -1,5 +1,7 @@
 import requests
-from albert_model import rank_results  # Import the ranking function from the ALBERT model
+from albert_model import _load_model
+from albert_model import rank_results # Import the ranking function from the ALBERT model
+from albert_history import main
 
 # --- Placeholder API Keys ---
 SERPAPI_KEY = "f76b30bd9e63785dfacca776677e15736a53b529aa3cd4eb4f772759cf16b669"
@@ -11,7 +13,7 @@ def albert_rank(query, results):
     # Normally you’d import and call your ALBERT ranking model here.
     return results  # returning unmodified results for now
 
-def main():
+def Main():
     query = input("Enter your search query: ").strip()
     print(f"\n🔍 Searching for: {query}\n")
 
@@ -52,7 +54,8 @@ def main():
         "q": query,
         "sortBy": "publishedAt",
         "apiKey": NEWSAPI_KEY,
-        "pageSize": 3
+        "pageSize": 3,
+        "language": "en"
     }
     news_response = requests.get("https://newsapi.org/v2/everything", params=news_params)
     if news_response.status_code == 200:
@@ -63,7 +66,10 @@ def main():
 
     # --- Rank results using ALBERT (if available) ---
     if results:
-        results = rank_results(query, results)
+        model = _load_model()
+        # need to plug in model for history to encode past data
+        history = main(query,model)
+        results = rank_results(history, results)
 
     # --- Print Results ---
     print("\n📄 Search Results:")
