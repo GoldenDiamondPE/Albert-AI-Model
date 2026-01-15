@@ -18,3 +18,5 @@ Flask-Session
 fastapi
 uvicorn
 sentence-transformers
+numpy
+scikit-learn
