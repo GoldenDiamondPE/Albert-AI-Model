@@ -31,20 +31,34 @@ def _extract_text(r: dict) -> str:
     return (title + " " + snippet).strip()
 
 def rank_results(query: str, results: list, batch_size: int = 32):
+    #checks if there are results to rank
     if not results:
         return results
-
+    # Load model
     model = _load_model()
-
+    # format results
     docs = [_extract_text(r) for r in results]
-    # If everything is empty, keep original order
-    if not any(docs):
+    # check for empty query or docs
+    if not any(docs) or not query:
         return results
-
-    # Encode (normalized so cosine == dot product)
-    q_vec = model.encode(query, normalize_embeddings=True)
-    d_vecs = model.encode(docs, normalize_embeddings=True, batch_size=batch_size)
-
-    scores = np.dot(d_vecs, q_vec)  # shape [num_docs]
-    ranked = sorted(zip(scores.tolist(), results), key=lambda x: x[0], reverse=True)
-    return [r for _, r in ranked]
+    else:
+        # Encode (normalized so cosine == dot product)
+        #q_vec = model.encode(query, normalize_embeddings=True)
+        # list of scores for all results
+        scores = []
+        for result in range(len(docs)):
+            # final score for a result
+            final_score = 0
+            # goes through each query text
+            for text in range(len(query)):
+                h_vec = model.encode(query[text], normalize_embeddings=True)
+                d_vecs = model.encode(docs[result], normalize_embeddings=True)
+                score = np.dot(d_vecs, h_vec)  # shape [num_doc]
+                # add to final score
+                final_score += score
+            # appends document's final score to scores list
+            scores.append(final_score)
+        # rank results by score
+        ranked = sorted(zip(scores, results), key=lambda x: x[0], reverse=True)
+        # return only results, in ranked order
+        return [r for _, r in ranked]
